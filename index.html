@@ -1,0 +1,160 @@
+<html>
+<head>
+    <title>Chat dengan Iwak AI</title>
+    <script src="https://js.puter.com/v2/"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1e1e1e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+        }
+        #chat-container {
+            width: 400px;
+            height: 600px;
+            background: #2c2f33;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+        #messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        .message {
+            display: flex;
+            align-items: flex-start;
+            margin: 8px 0;
+        }
+        .bubble {
+            padding: 8px 12px;
+            border-radius: 15px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        .user .bubble {
+            background: #3ba55d;
+            margin-left: auto;
+            color: #fff;
+        }
+        .ai .bubble {
+            background: #5865f2;
+            margin-right: auto;
+            color: #fff;
+        }
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        #input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #444;
+        }
+        #input-area input {
+            flex: 1;
+            padding: 8px;
+            border-radius: 20px;
+            border: none;
+        }
+        #input-area button {
+            margin-left: 10px;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            background: #7289da;
+            color: white;
+            cursor: pointer;
+        }
+        #input-area button:hover {
+            background: #5b6eae;
+        }
+        .typing {
+            font-style: italic;
+            color: #ccc;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="messages"></div>
+        <div id="input-area">
+            <input id="question" type="text" placeholder="Tulis pesan...">
+            <button onclick="askAI()">Kirim</button>
+        </div>
+    </div>
+
+    <script>
+        function addMessage(text, sender, avatarUrl=null, name=null) {
+            const msg = document.createElement("div");
+            msg.className = "message " + sender;
+
+            if (sender === "ai" && avatarUrl) {
+                const avatar = document.createElement("img");
+                avatar.src = avatarUrl;
+                avatar.className = "avatar";
+                msg.appendChild(avatar);
+            }
+
+            const bubble = document.createElement("div");
+            bubble.className = "bubble";
+            bubble.textContent = name ? name + ": " + text : text;
+            msg.appendChild(bubble);
+
+            document.getElementById("messages").appendChild(msg);
+            document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+        }
+
+        function showTyping(name) {
+            const typing = document.createElement("div");
+            typing.id = "typing";
+            typing.className = "typing";
+            typing.textContent = name + " sedang mengetik...";
+            document.getElementById("messages").appendChild(typing);
+            document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+        }
+
+        function removeTyping() {
+            const typing = document.getElementById("typing");
+            if (typing) typing.remove();
+        }
+
+        function askAI() {
+            const q = document.getElementById("question").value;
+            if (!q) return;
+            addMessage(q, "user");
+            document.getElementById("question").value = "";
+
+            showTyping("Iwak AI");
+
+            puter.ai.chat(q, { model: "gpt-5-nano" })
+                .then(response => {
+                    removeTyping();
+                    addMessage(
+                        response,
+                        "ai",
+                        "https://yt3.googleusercontent.com/QhTdeIH7fsWlSkMBIWh3LShiqEkqyepkEUPICnid7P1nZhvISkT2SDQWXhpcPjbSTuJpcuB60A=s160-c-k-c0x00ffffff-no-rj",
+                        "Iwak AI"
+                    );
+                })
+                .catch(error => {
+                    removeTyping();
+                    addMessage(
+                        "Error: " + error,
+                        "ai",
+                        "https://yt3.googleusercontent.com/QhTdeIH7fsWlSkMBIWh3LShiqEkqyepkEUPICnid7P1nZhvISkT2SDQWXhpcPjbSTuJpcuB60A=s160-c-k-c0x00ffffff-no-rj",
+                        "Iwak AI"
+                    );
+                });
+        }
+    </script>
+</body>
+</html>
